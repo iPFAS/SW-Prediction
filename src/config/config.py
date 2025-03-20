@@ -37,7 +37,7 @@ class Config:
     # 模型训练配置
     MODEL_CONFIG = {
         'train_size': 0.8,
-        'n_top_models': 10,
+        'n_top_models': 5,
         'fold_strategy': 'timeseries',
         'fold_shuffle': False,
         'fold': 5,
@@ -50,7 +50,7 @@ class Config:
 
     # 模型调优配置
     TUNING_CONFIG = {
-        'n_iter': 100,
+        'n_iter': 50,
         'optimize': 'MAPE',
         'search_library': 'optuna',
         'early_stopping': 10,

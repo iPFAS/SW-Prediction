@@ -150,7 +150,7 @@ class FeatureEngineering:
                 lambda s: s.pct_change().diff().shift(1)),
             # 相似国家特征（基于经济发展水平的参照系）
             # 使用fit阶段计算的similar_countries_ref作为参考基准
-            similar_countries_gdp_growth = lambda x: x.apply(lambda row: self.similar_countries_ref.get((row['Year'], row['Country Name']), 0), axis=1),
+            # similar_countries_gdp_growth = lambda x: x.apply(lambda row: self.similar_countries_ref.get((row['Year'], row['Country Name']), 0), axis=1),
             # 发展水平分组特征（基于人均GDP的五档分位数分组）
             development_stage = lambda x: pd.cut(x['GDP PPP/capita 2017'], bins=self.development_stage_bins, labels=['Very Low', 'Low', 'Medium', 'High', 'Very High']),
             stage_avg_gdp_growth = lambda x: x.groupby(['development_stage', 'Year'])['GDP PPP 2017'].transform(
