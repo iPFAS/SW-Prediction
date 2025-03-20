@@ -113,7 +113,7 @@ class Visualizer:
 
         # 收入分组
         plt.subplot(1, 2, 2)
-        sns.boxplot(x='Income Group', y='Error_percent', data=test_data, palette='viridis')
+        sns.boxplot(x='development_stage', y='Error_percent', data=test_data, palette='viridis')
         plt.axhline(y=0, color='#e74c3c', linestyle='--', linewidth=2)
         plt.xlabel('收入组', labelpad=10)
         plt.ylabel('预测误差百分比 (%)', labelpad=10)
@@ -127,23 +127,23 @@ class Visualizer:
         
         # 误差趋势分析
         plt.subplot(2, 2, 1)
-        sns.lineplot(x='Year', y='Error_percent', hue='Income Group', 
+        sns.lineplot(x='Year', y='Error_percent', hue='development_stage', 
                     data=test_data, palette='Set2', ci=None)
         plt.axhline(0, color='#e74c3c', linestyle='--')
         plt.title('不同收入组误差年度趋势')
         
         # 误差分布密度
         plt.subplot(2, 2, 3)
-        for income_group in test_data['Income Group'].unique():
-            subset = test_data[test_data['Income Group']==income_group]
+        for income_group in test_data['development_stage'].unique():
+            subset = test_data[test_data['development_stage']==income_group]
             sns.kdeplot(subset['Error_percent'], label=income_group)
         plt.legend()
         plt.title('误差分布密度')
         
         # 累积误差分布
         plt.subplot(2, 2, 4)
-        for income_group in test_data['Income Group'].unique():
-            subset = test_data[test_data['Income Group']==income_group]
+        for income_group in test_data['development_stage'].unique():
+            subset = test_data[test_data['development_stage']==income_group]
             subset['Error_percent'].hist(cumulative=True, density=True, 
                                         histtype='step', bins=50, 
                                         label=income_group)
@@ -155,8 +155,8 @@ class Visualizer:
         plt.show()
         
         # 检查缺失数据
-        if test_data['Income Group'].isnull().any():
-            print('发现缺失的Income Group数据，可能影响分析结果')
+        if test_data['development_stage'].isnull().any():
+            print('发现缺失的development_stage数据，可能影响分析结果')
 
     def plot_overall_performance(self, test_data: pd.DataFrame):
         """绘制整体预测性能，包括误差分布和按年份的误差

@@ -21,7 +21,7 @@ class Config:
 
     # 特征工程配置
     FEATURE_CONFIG = {
-        'categorical_columns': ['Region', 'Income Group','development_stage'],
+        'categorical_columns': ['development_stage'],
         'target_transform_method': 'log',
         'base_year': 1990,
         'historical_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\0-indicator_list-v2.xlsx',
