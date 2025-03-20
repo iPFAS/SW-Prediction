@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/mlruns/1/acb3c8af996e46e8865933870b1b4bfe/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: acb3c8af996e46e8865933870b1b4bfe
+run_name: Light Gradient Boosting Machine
+run_uuid: acb3c8af996e46e8865933870b1b4bfe
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742382674162
+status: 1
+tags: []
+user_id: Administrator

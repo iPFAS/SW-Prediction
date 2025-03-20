@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/%E5%A4%87%E4%BB%BD/mlruns/1/a33c99bb73a84f55963b8beb0975f9e3/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: a33c99bb73a84f55963b8beb0975f9e3
+run_name: Least Angle Regression
+run_uuid: a33c99bb73a84f55963b8beb0975f9e3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742370117044
+status: 1
+tags: []
+user_id: Administrator

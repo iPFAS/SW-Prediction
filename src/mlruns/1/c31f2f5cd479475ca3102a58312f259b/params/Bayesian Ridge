@@ -1,0 +1,3 @@
+BayesianRidge(alpha_1=0.0010476781327366928, alpha_2=5.858592852295242e-07,
+              compute_score=True, lambda_1=0.891900372088813,
+              lambda_2=1.408836736576288e-07)
