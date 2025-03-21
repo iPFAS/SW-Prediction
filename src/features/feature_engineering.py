@@ -143,9 +143,6 @@ class FeatureEngineering:
             lambda x: np.log1p(x.rolling(5, min_periods=1).mean())
         )
         df['region_economic_weight'] = region_economic_level / region_economic_level.max()
-        # # 针对South Asia地区添加特殊处理
-        # # 创建South Asia区域标识
-        # df['is_south_asia'] = df['Region'].apply(lambda x: 1 if x == 'South Asia' else 0)
         
         # 计算动态组特征与预存统计参数的交互项
         for group_col in ['Region', 'Income Group']:
@@ -158,39 +155,36 @@ class FeatureEngineering:
                     'GDP PPP/capita 2017': 'gdp_per_capita',
                     'Population': 'population'
                 }
-
-                # 遍历每一行数据
-                for index, row in df.iterrows():
-                    # 从group_stats获取预计算的统计参数
-                    group_key = (row[group_col], row['Year'])
-                    stats = self.group_stats.get(group_col, {}).get(group_key, {})
+                
+                # 创建临时索引列用于对齐
+                df['_temp_index'] = df.index
+                
+                # 获取统计量并保持索引对齐
+                stats_df = df.groupby([group_col, 'Year']).apply(
+                    lambda g: pd.Series({
+                        'stat_mean': self.group_stats.get(group_col, {})
+                                       .get((g.name[0], g.name[1]), {})
+                                       .get(f'{metric_map[metric]}_mean', 1)
+                    })
+                ).reset_index()
+                
+                # 合并统计量到原始数据
+                df = pd.merge(df, stats_df, on=[group_col, 'Year'], how='left')
+                ma_ratio = df[metric] / (df['stat_mean'] + 1e-6)
+                df[f'{metric_name}_{group_name}_ma_ratio'] = np.log1p(ma_ratio)
+                
+                # 清理临时列
+                df = df.drop(columns=['_temp_index', 'stat_mean'])
+                # ========================
 
                 # 保留标准化偏差特征
-                # df[f'{metric_name}_{group_name}_deviation'] = df.groupby(group_col)[metric].transform(
-                #     lambda x: (x - x.mean()) / x.std()
-                # ).fillna(0)
+                df[f'{metric_name}_{group_name}_deviation'] = df.groupby(group_col)[metric].transform(
+                    lambda x: (x - x.mean()) / x.std()
+                ).fillna(0)
 
-                # 新增区域平均值差异特征
-                region_mean = df.groupby(group_col)[metric].transform('mean')
-                # df[f'{metric_name}_{group_name}_diff'] = df[metric] - region_mean
-
-                # 添加区域特征衰减因子（基于时间差）
-                base_year = self.base_year
-                decay_factor = 0.9 ** (df['Year'] - base_year)
-                # df[f'{metric_name}_{group_name}_deviation'] = df[f'{metric_name}_{group_name}_deviation'] * decay_factor
-                # df[f'{metric_name}_{group_name}_diff'] = df[f'{metric_name}_{group_name}_diff'] * decay_factor
         
         # 计算每个国家自身的GDP和人口趋势特征
         for metric in ['GDP PPP 2017', 'GDP PPP/capita 2017', 'Population']:
-            # 从group_stats获取预计算的统计参数
-            group_key = (row[group_col], row['Year'])
-            stats = self.group_stats.get(group_col, {}).get(group_key, {})
-            
-            # 将动态计算的偏差特征与预存参数结合
-            for index, row in df.iterrows():
-                group_key = (row[group_col], row['Year'])
-                stats = self.group_stats.get(group_col, {}).get(group_key, {})
-                      
             metric_name = metric.lower().replace(' ', '_')
             
             # 基础特征变换
