@@ -213,6 +213,61 @@ class FeatureEngineering:
         df['gdp_per_capita_acceleration'] = df.groupby('Country Name')['gdp_per_capita_growth'].transform(
             lambda x: x.pct_change().shift(1)
         ).fillna(0)
+
+        # 1. 添加South Asia特定特征
+        df['is_south_asia'] = df['Region'].apply(lambda x: 1 if x == 'South Asia' else 0)
+        df['south_asia_gdp_interaction'] = df['is_south_asia'] * df['GDP PPP/capita 2017']
+        df['south_asia_population_density'] = df['is_south_asia'] * (df['Population'] / df.groupby('Country Name')['Population'].transform('mean'))
+        
+        # 2. 添加收入组序数特征
+        df['income_group_ordinal'] = df['Income Group'].map({
+            'Low income': 1, 
+            'Lower middle income': 2, 
+            'Upper middle income': 3, 
+            'High income': 4
+        })
+        
+        # 3. 添加收入组与GDP交互特征
+        df['income_gdp_interaction'] = df['income_group_ordinal'] * np.log1p(df['GDP PPP/capita 2017'])
+        
+        # 4. 添加区域-收入组交叉特征
+        df['region_income_interaction'] = df.apply(
+            lambda row: f"{row['Region']}_{row['Income Group']}", axis=1
+        ).astype('category').cat.codes
+        
+        # 5. 针对高误差区域的特征
+        high_error_regions = ['South Asia', 'Sub-Saharan Africa', 'Middle East & North Africa']
+        df['high_error_region'] = df['Region'].apply(lambda x: 1 if x in high_error_regions else 0)
+        df['high_error_region_time_trend'] = df['high_error_region'] * (df['Year'] - df['Year'].min())
+        
+        # 6. 收入组时间趋势特征
+        for income_group in ['Upper middle income', 'Low income', 'Lower middle income']:
+            col_name = income_group.lower().replace(' ', '_')
+            df[f'{col_name}_flag'] = (df['Income Group'] == income_group).astype(int)
+            df[f'{col_name}_gdp_trend'] = df[f'{col_name}_flag'] * df.groupby('Country Name')['GDP PPP/capita 2017'].transform(
+                lambda x: x.pct_change().rolling(3, min_periods=1).mean()
+            ).fillna(0)
+        
+        # 7. 增强区域经济发展阶段特征
+        df['region_development_stage'] = df.groupby('Region')['GDP PPP/capita 2017'].transform(
+            lambda x: pd.qcut(x, q=5, labels=False, duplicates='drop')
+        ).fillna(-1)
+        
+        # 8. 添加人口密度相关特征
+        df['population_density_trend'] = df.groupby('Country Name')['Population'].transform(
+            lambda x: x.diff() / x.shift(1)
+        ).fillna(0)
+        
+        # 9. GDP波动性特征
+        df['gdp_volatility'] = df.groupby('Country Name')['GDP PPP 2017'].transform(
+            lambda x: x.rolling(5, min_periods=2).std() / x.rolling(5, min_periods=2).mean()
+        ).fillna(0)
+        
+        # 10. 增强现有MA特征的稳定性
+        for col in df.filter(regex='_ma_ratio$').columns:
+            df[f'{col}_smoothed'] = df.groupby('Country Name')[col].transform(
+                lambda x: x.rolling(3, min_periods=1).mean()
+            )
         
         # 处理无限值和异常值
         df = df.replace([np.inf, -np.inf], np.nan)
