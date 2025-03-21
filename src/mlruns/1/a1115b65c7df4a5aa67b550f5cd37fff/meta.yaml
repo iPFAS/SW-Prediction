@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/src/mlruns/1/a1115b65c7df4a5aa67b550f5cd37fff/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: a1115b65c7df4a5aa67b550f5cd37fff
+run_name: Voting Regressor
+run_uuid: a1115b65c7df4a5aa67b550f5cd37fff
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742506698480
+status: 1
+tags: []
+user_id: Administrator

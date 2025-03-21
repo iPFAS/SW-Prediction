@@ -9,22 +9,55 @@ class FeatureEngineering:
         """初始化特征工程类"""
         self.base_year = Config.FEATURE_CONFIG['base_year']
         self.required_columns = Config.FEATURE_CONFIG['usecols']
-        self.development_stage_bins = None
-        self.similar_countries_ref = None
         
     def save_params(self, params_path: str):
         """保存特征工程参数到文件"""
+        # 参数完整性验证
+        required_keys = ['group_stats', 'country_trend_params']
+        missing_keys = [k for k in required_keys if not hasattr(self, k)]
+        if missing_keys:
+            raise ValueError(f"缺失关键参数: {missing_keys}")
+
+        # 记录参数结构信息
+        param_stats = {
+            'group_stats_keys': [k for k in self.group_stats.keys()],
+            'country_count': len(self.country_trend_params),
+            'group_stats_entries': sum(len(v) for v in self.group_stats.values())
+        }
+        print(f"保存参数摘要: {param_stats}")
+
         params = {
-            'development_stage_bins': self.development_stage_bins,
-            'similar_countries_ref': self.similar_countries_ref
+            'group_stats': self.group_stats,
+            'country_trend_params': self.country_trend_params
         }
         pd.to_pickle(params, params_path)
         
     def load_params(self, params_path: str):
         """从文件加载特征工程参数"""
         params = pd.read_pickle(params_path)
-        self.development_stage_bins = params['development_stage_bins']
-        self.similar_countries_ref = params['similar_countries_ref']
+        
+        # 参数完整性检查
+        required_keys = ['group_stats', 'country_trend_params']
+        missing_keys = [k for k in required_keys if k not in params]
+        if missing_keys:
+            raise ValueError(f"参数文件缺失关键字段: {missing_keys}")
+
+        # 记录加载参数摘要
+        param_stats = {
+            'loaded_group_stats_keys': [k for k in params['group_stats'].keys()],
+            'country_count': len(params['country_trend_params']),
+            'group_stats_entries': sum(len(v) for v in params['group_stats'].values())
+        }
+        print(f"加载参数摘要: {param_stats}")
+
+        self.group_stats = params['group_stats']
+        self.country_trend_params = params['country_trend_params']
+        
+        # 验证参数类型
+        if not isinstance(self.group_stats, dict):
+            raise TypeError("group_stats参数类型错误，应为字典")
+        if not isinstance(self.country_trend_params, dict):
+            raise TypeError("country_trend_params参数类型错误，应为字典")
 
     def validate_columns(self, df: pd.DataFrame) -> None:
         """验证输入数据是否包含所需列"""
@@ -48,70 +81,45 @@ class FeatureEngineering:
 
     def fit(self, df: pd.DataFrame):
         """拟合训练数据并保存统计参数"""
-        # 计算发展阶段的全局分位数
-        self.development_stage_bins = pd.qcut(
-            df['GDP PPP/capita 2017'], 
-            q=5, 
-            retbins=True,
-            duplicates='drop'
-        )[1]
-        
-        # 计算区域平均GDP
-        df['development_stage'] = pd.cut(
-            df['GDP PPP/capita 2017'], 
-            bins=self.development_stage_bins, 
-            labels=['Very Low', 'Low', 'Medium', 'High', 'Very High']
-        )
-        
-        region_stats = df.groupby(['Region', 'Year']).agg({
-            'GDP PPP 2017': 'mean',
-            'GDP PPP/capita 2017': 'mean'
-        }).reset_index()
-        
-        self.region_stats = region_stats.set_index(['Region', 'Year']).to_dict()
-        
-        # 预计算所有国家的GDP增长率
-        gdp_growth_rates = df.groupby('Country Name', group_keys=True)['GDP PPP 2017'].apply(
-            lambda x: np.clip(x.pct_change(), -0.5, 0.5)
-        ).fillna(0)
-
-        # 按年份和发展阶段分组预处理数据
-        df_grouped = df.groupby(['Year', 'development_stage', 'Region'])
-        similar_countries_data = []
-
-        # 使用向量化操作计算相似国家
-        for (year, stage, region), group in df_grouped:
-            countries = group['Country Name'].unique()
-            gdp_values = group['GDP PPP/capita 2017'].values
+        # 计算收入组的基本统计特征
+                # 新增国家趋势参数计算
+        # 计算区域和收入组的长期基准参数
+        group_stats = {}
+        for group_type in ['Region', 'Income Group']:
+            stats = df.groupby([group_type, 'Year']).agg(
+                gdp_mean=('GDP PPP 2017', 'mean'),
+                gdp_median=('GDP PPP 2017', 'median'),
+                gdp_std=('GDP PPP 2017', 'std'),
+                gdp_per_capita_mean=('GDP PPP/capita 2017', 'mean'),
+                gdp_per_capita_median=('GDP PPP/capita 2017', 'median'),
+                gdp_per_capita_std=('GDP PPP/capita 2017', 'std'),
+                population_mean=('Population', 'mean'),
+                population_median=('Population', 'median'),
+                population_std=('Population', 'std')
+            ).reset_index()
             
-            for i, country in enumerate(countries):
-                country_gdp = gdp_values[i]
-                
-                # 使用numpy操作计算GDP比率
-                gdp_ratios = gdp_values / country_gdp
-                similar_mask = (gdp_ratios >= 0.5) & (gdp_ratios <= 2.0)
-                
-                # 获取相似国家
-                similar_countries = countries[similar_mask & (countries != country)]
-                
-                if len(similar_countries) > 0:
-                    # 计算相似国家的平均GDP增长率
-                    similar_growth_rates = gdp_growth_rates[gdp_growth_rates.index.get_level_values('Country Name').isin(similar_countries)]
-                    similar_gdp_growth = similar_growth_rates.mean()
-                    
-                    # 如果没有有效的增长率，使用全局平均值
-                    if pd.isna(similar_gdp_growth):
-                        similar_gdp_growth = gdp_growth_rates.mean()
-                    
-                    similar_countries_data.append({
-                        'Year': year,
-                        'Country': country,
-                        'similar_gdp_growth': similar_gdp_growth
-                    })
+            # 计算历史基准（使用5年窗口均值）
+            stats['gdp_5y_ma'] = stats.groupby(group_type)['gdp_mean'].transform(lambda x: x.rolling(5, min_periods=1).mean())
+            stats['gdp_per_capita_5y_ma'] = stats.groupby(group_type)['gdp_per_capita_mean'].transform(lambda x: x.rolling(5, min_periods=1).mean())
+            stats['population_5y_ma'] = stats.groupby(group_type)['population_mean'].transform(lambda x: x.rolling(5, min_periods=1).mean())
+            
+            group_stats[group_type] = stats.set_index([group_type, 'Year']).to_dict()
         
-        # 将结果转换为字典格式
-        self.similar_countries_ref = pd.DataFrame(similar_countries_data).set_index(['Year', 'Country']).to_dict()
+        # 动态获取组统计参数并设置默认值
+        self.group_stats = group_stats
+        
+        # 计算国家级的GDP/capita趋势参数（确保不包含未来年份）
+        self.country_trend_params = {
+            country: np.polyfit(
+                country_df[country_df['Year'] <= self.base_year]['Year'] - self.base_year,
+                country_df[country_df['Year'] <= self.base_year]['GDP PPP/capita 2017'], 1
+            )[0] if len(country_df[country_df['Year'] <= self.base_year]) > 1 else 0.0
+            for country, country_df in df.groupby('Country Name')
+        }
 
+        # 新增GDP/capita增长率计算
+        df['gdp_per_capita_growth'] = df.groupby('Country Name')['GDP PPP/capita 2017'].pct_change().fillna(0)
+        
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """使用已拟合的参数转换数据
 
@@ -124,79 +132,99 @@ class FeatureEngineering:
         self.validate_columns(df)
         df = df.copy()
         
-        # 生成时间特征（基于配置的基准年份）
-        # 按国家分组进行特征计算，避免数据泄露
+        # 按国家分组进行特征计算
         df = df.sort_values(['Country Name', 'Year'])
         
-        # 计算基础时间趋势特征
-        df['year_trend'] = np.clip(df['Year'] - self.base_year, 0, None)
-        df['year_trend_squared'] = df['year_trend'] ** 2
-        df['year_trend_log'] = np.log1p(np.clip(df['year_trend'], 0, None))
+        # 新增GDP/capita增长率计算
+        df['gdp_per_capita_growth'] = df.groupby('Country Name')['GDP PPP/capita 2017'].pct_change().fillna(0)
         
-        # 计算GDP趋势特征
-        df['gdp_5y_ma'] = df.groupby('Country Name')['GDP PPP 2017'].transform(
-            lambda s: s.rolling(window=5, min_periods=1).mean().shift(1))
-        df['gdp_10y_ma'] = df.groupby('Country Name')['GDP PPP 2017'].transform(
-            lambda s: s.rolling(window=10, min_periods=1).mean().shift(1))
-        df['gdp_growth_rate'] = df.groupby('Country Name')['GDP PPP 2017'].transform(
-            lambda s: s.pct_change().shift(1))
+        # 添加区域经济发展阶段加权指标
+        region_economic_level = df.groupby('Region')['GDP PPP/capita 2017'].transform(
+            lambda x: np.log1p(x.rolling(5, min_periods=1).mean())
+        )
+        df['region_economic_weight'] = region_economic_level / region_economic_level.max()
+        # # 针对South Asia地区添加特殊处理
+        # # 创建South Asia区域标识
+        # df['is_south_asia'] = df['Region'].apply(lambda x: 1 if x == 'South Asia' else 0)
         
-        # 计算人口动态特征
-        df['pop_growth_rate'] = df.groupby('Country Name')['Population'].transform(
-            lambda s: s.pct_change().shift(1))
-        df['pop_density_trend'] = df.groupby('Country Name')['Population'].transform(
-            lambda s: s.rolling(window=5, min_periods=1).mean().shift(1))
+        # 计算动态组特征与预存统计参数的交互项
+        for group_col in ['Region', 'Income Group']:
+            group_name = group_col.lower().replace(' ', '_')
+            
+            for metric in ['GDP PPP 2017', 'GDP PPP/capita 2017', 'Population']:
+                metric_name = metric.lower().replace(' ', '_')
+                metric_map = {
+                    'GDP PPP 2017': 'gdp',
+                    'GDP PPP/capita 2017': 'gdp_per_capita',
+                    'Population': 'population'
+                }
+
+                # 遍历每一行数据
+                for index, row in df.iterrows():
+                    # 从group_stats获取预计算的统计参数
+                    group_key = (row[group_col], row['Year'])
+                    stats = self.group_stats.get(group_col, {}).get(group_key, {})
+
+                # 保留标准化偏差特征
+                # df[f'{metric_name}_{group_name}_deviation'] = df.groupby(group_col)[metric].transform(
+                #     lambda x: (x - x.mean()) / x.std()
+                # ).fillna(0)
+
+                # 新增区域平均值差异特征
+                region_mean = df.groupby(group_col)[metric].transform('mean')
+                # df[f'{metric_name}_{group_name}_diff'] = df[metric] - region_mean
+
+                # 添加区域特征衰减因子（基于时间差）
+                base_year = self.base_year
+                decay_factor = 0.9 ** (df['Year'] - base_year)
+                # df[f'{metric_name}_{group_name}_deviation'] = df[f'{metric_name}_{group_name}_deviation'] * decay_factor
+                # df[f'{metric_name}_{group_name}_diff'] = df[f'{metric_name}_{group_name}_diff'] * decay_factor
         
-        # 计算经济-人口交互特征
-        df['gdp_pop_interaction'] = np.log1p(df['GDP PPP 2017']) * np.log1p(df['Population'])
-        df['gdp_per_capita_growth'] = df.groupby('Country Name')['GDP PPP/capita 2017'].transform(
-            lambda s: s.pct_change().shift(1))
+        # 计算每个国家自身的GDP和人口趋势特征
+        for metric in ['GDP PPP 2017', 'GDP PPP/capita 2017', 'Population']:
+            # 从group_stats获取预计算的统计参数
+            group_key = (row[group_col], row['Year'])
+            stats = self.group_stats.get(group_col, {}).get(group_key, {})
+            
+            # 将动态计算的偏差特征与预存参数结合
+            for index, row in df.iterrows():
+                group_key = (row[group_col], row['Year'])
+                stats = self.group_stats.get(group_col, {}).get(group_key, {})
+                      
+            metric_name = metric.lower().replace(' ', '_')
+            
+            # 基础特征变换
+            df[f'{metric_name}_log'] = np.log1p(df[metric])
+            df[f'{metric_name}_squared'] = np.square(df[metric])
+            
+            # 计算增长率（只考虑国家自身的历史数据）
+            df[f'{metric_name}_growth'] = df.groupby('Country Name')[metric].transform(
+                lambda x: x.pct_change().shift(1)
+            ).fillna(0)
+            
+            # 计算相对于国家自身历史的统计特征
+            df[f'{metric_name}_rolling_mean_3y'] = df.groupby('Country Name')[metric].transform(
+                lambda x: x.rolling(window=3, min_periods=1).mean()
+            )
+            df[f'{metric_name}_rolling_std_3y'] = df.groupby('Country Name')[metric].transform(
+                lambda x: x.rolling(window=3, min_periods=1).std()
+            )
+            
+            # 计算与历史均值的偏差
+            df[f'{metric_name}_deviation'] = df.groupby('Country Name')[metric].transform(
+                lambda x: (x - x.expanding().mean()) / x.expanding().std()
+            ).fillna(0)
         
-        # 计算中长期历史趋势
-        df['gdp_trend'] = df.groupby('Country Name')['GDP PPP 2017'].transform(
-            lambda s: (s - s.shift(5)) / s.shift(5)).shift(1)
-        df['pop_trend'] = df.groupby('Country Name')['Population'].transform(
-            lambda s: (s - s.shift(5)) / s.shift(5)).shift(1)
+        # 计算人均GDP的二阶导数（加速度）
+        df['gdp_per_capita_acceleration'] = df.groupby('Country Name')['gdp_per_capita_growth'].transform(
+            lambda x: x.pct_change().shift(1)
+        ).fillna(0)
         
-        # 计算经济发展阶段特征
-        df['gdp_per_capita_ma'] = df.groupby('Country Name')['GDP PPP/capita 2017'].transform(
-            lambda s: s.rolling(window=5, min_periods=1).mean().shift(1))
-        df['gdp_acceleration'] = df.groupby('Country Name')['GDP PPP 2017'].transform(
-            lambda s: s.pct_change().diff().shift(1))
-        
-        # 计算发展阶段特征
-        df['development_stage'] = pd.cut(df['GDP PPP/capita 2017'], 
-                                       bins=self.development_stage_bins, 
-                                       labels=['Very Low', 'Low', 'Medium', 'High', 'Very High'])
-        
-        # 计算区域经济特征
-        df['region_avg_gdp'] = df.apply(lambda row: self.region_stats['GDP PPP 2017'].get((row['Region'], row['Year']), 0), axis=1)
-        df['region_gdp_per_capita'] = df.apply(lambda row: self.region_stats['GDP PPP/capita 2017'].get((row['Region'], row['Year']), 0), axis=1)
-        
-        # 计算相似国家特征
-        df['similar_gdp_growth'] = df.apply(lambda row: self.similar_countries_ref['similar_gdp_growth'].get((row['Year'], row['Country Name']), 0), axis=1)
-        
-        # 计算发展阶段动态权重特征（增加低收入组权重）
-        df['stage_weight'] = df['development_stage'].map({'Very Low': 1.5, 'Low': 1.3, 'Medium': 1.0, 'High': 0.8, 'Very High': 0.7}).astype(float)
-        df['weighted_gdp'] = df['GDP PPP 2017'] * df['stage_weight']
-        df['weighted_pop'] = df['Population'] * df['stage_weight']
-        
-        # 计算发展阶段平均特征
-        df['stage_avg_gdp_growth'] = df.groupby(['development_stage', 'Year'])['GDP PPP 2017'].transform(lambda s: s.pct_change().mean()).shift(1)
-        
-        # 添加区域和发展阶段的交互特征
-        df['region_stage_gdp'] = df.groupby(['Region', 'development_stage', 'Year'])['GDP PPP 2017'].transform('mean')
-        df['region_stage_pop'] = df.groupby(['Region', 'development_stage', 'Year'])['Population'].transform('mean')
-        df['region_stage_gdp_growth'] = df.groupby(['Region', 'development_stage'])['GDP PPP 2017'].transform(lambda x: x.pct_change().mean())
-        
-        # 添加区域特定的发展阶段权重
-        region_weights = {
-            'South Asia': {'Very Low': 1.8, 'Low': 1.5, 'Medium': 1.2, 'High': 0.9, 'Very High': 0.7},
-            'Sub-Saharan Africa': {'Very Low': 1.7, 'Low': 1.4, 'Medium': 1.1, 'High': 0.9, 'Very High': 0.7}
-        }
-        df['region_stage_weight'] = df.apply(lambda row: region_weights.get(row['Region'], {}).get(row['development_stage'], row['stage_weight']), axis=1)
-        df['region_weighted_gdp'] = df['GDP PPP 2017'] * df['region_stage_weight']
-        
+        # 处理无限值和异常值
+        df = df.replace([np.inf, -np.inf], np.nan)
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        df[numeric_cols] = df[numeric_cols].apply(lambda x: np.clip(x, np.finfo(np.float64).min, np.finfo(np.float64).max))
+
         # 填充缺失值
         df = df.fillna(method='ffill').fillna(method='bfill').fillna(0)
         return df
