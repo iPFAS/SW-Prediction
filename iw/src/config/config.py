@@ -11,11 +11,11 @@ class Config:
     # 数据加载配置
     DATA_CONFIG = {
         'data_path': r"E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\1-MSW_CW_IW_HIW_training_data.xlsx", 
-        'target_column': 'MSW',
-        'common_columns': ['Region', 'Income Group'],
+        'target_column': 'IW',
+        'common_columns': ['Region', 'Income Group','Industry Value Added %'],
         'country_train_size': 0.8,
         'country_val_size': 0.1,
-        'time_test_size': 0.15,
+        'time_test_size': 0.20,
         'random_state': 888
     }
 
@@ -25,13 +25,13 @@ class Config:
         'target_transform_method': 'log',
         'base_year': 1990,
         'historical_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\0-indicator_list-v2.xlsx',
-        'historical_sheet': 'MSW全部指标',
+        'historical_sheet': 'IW全部指标',
         'historical_msw_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\1-MSW_CW_IW_HIW_training_data.xlsx',
-        'historical_msw_sheet': 'msw_result',
+        'historical_msw_sheet': 'iw_result',
         'future_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\0-indicator_list-v2.xlsx',
-        'future_sheet': 'MSW全部指标',
+        'future_sheet': 'IW全部指标',
         'usecols': ['Year', 'Country Name', 'Population', 
-                    'GDP PPP 2017', 'GDP PPP/capita 2017','Income Group', 'Region']
+                    'GDP PPP 2017', 'GDP PPP/capita 2017','Income Group', 'Region','Industry Value Added %']
     }
 
     # 模型训练配置

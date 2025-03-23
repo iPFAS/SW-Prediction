@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/bcffa0ea39a0448a861cfca1adfa4aa7/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: bcffa0ea39a0448a861cfca1adfa4aa7
+run_name: Huber Regressor
+run_uuid: bcffa0ea39a0448a861cfca1adfa4aa7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742735948258
+status: 1
+tags: []
+user_id: Administrator

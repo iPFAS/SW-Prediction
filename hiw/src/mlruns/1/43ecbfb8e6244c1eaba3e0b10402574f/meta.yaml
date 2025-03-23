@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/hiw/src/mlruns/1/43ecbfb8e6244c1eaba3e0b10402574f/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 43ecbfb8e6244c1eaba3e0b10402574f
+run_name: Extra Trees Regressor
+run_uuid: 43ecbfb8e6244c1eaba3e0b10402574f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742749230730
+status: 1
+tags: []
+user_id: Administrator

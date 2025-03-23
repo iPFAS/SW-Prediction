@@ -208,8 +208,7 @@ class Visualizer:
         complete_countries = []
         for country in full_data['Country Name'].unique():
             country_years = set(full_data[full_data['Country Name'] == country]['Year'])
-            if country_years.issuperset(expected_years):
-                complete_countries.append(country)
+            complete_countries.append(country)
         
         # 计算具有完整数据的国家的平均绝对百分比误差
         test_data['Error_percent'] = abs((test_data[self.target_column_pred] - test_data[self.target_column]) / test_data[self.target_column] * 100)

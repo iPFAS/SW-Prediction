@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/65c9d84768104896a58126a2812d2588/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 65c9d84768104896a58126a2812d2588
+run_name: Bayesian Ridge
+run_uuid: 65c9d84768104896a58126a2812d2588
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742561675827
+status: 1
+tags: []
+user_id: Administrator

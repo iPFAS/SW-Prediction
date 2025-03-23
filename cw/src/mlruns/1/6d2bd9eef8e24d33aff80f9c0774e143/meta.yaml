@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/cw/src/mlruns/1/6d2bd9eef8e24d33aff80f9c0774e143/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 6d2bd9eef8e24d33aff80f9c0774e143
+run_name: Session Initialized 7a2f
+run_uuid: 6d2bd9eef8e24d33aff80f9c0774e143
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742560463963
+status: 1
+tags: []
+user_id: Administrator

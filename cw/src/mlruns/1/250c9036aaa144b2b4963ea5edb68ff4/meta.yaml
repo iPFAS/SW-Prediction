@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/cw/src/mlruns/1/250c9036aaa144b2b4963ea5edb68ff4/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 250c9036aaa144b2b4963ea5edb68ff4
+run_name: CatBoost Regressor
+run_uuid: 250c9036aaa144b2b4963ea5edb68ff4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742746992474
+status: 1
+tags: []
+user_id: Administrator

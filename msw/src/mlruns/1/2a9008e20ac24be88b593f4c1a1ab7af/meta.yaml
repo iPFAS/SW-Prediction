@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/src/mlruns/1/2a9008e20ac24be88b593f4c1a1ab7af/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 2a9008e20ac24be88b593f4c1a1ab7af
+run_name: Passive Aggressive Regressor
+run_uuid: 2a9008e20ac24be88b593f4c1a1ab7af
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742740772955
+status: 1
+tags: []
+user_id: Administrator

@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/c0417e879c144e4b978c4acacd279066/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: c0417e879c144e4b978c4acacd279066
+run_name: Linear Regression
+run_uuid: c0417e879c144e4b978c4acacd279066
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742562323873
+status: 1
+tags: []
+user_id: Administrator

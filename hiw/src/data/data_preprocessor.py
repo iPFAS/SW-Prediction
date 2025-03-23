@@ -74,7 +74,7 @@ class DataPreprocessor:
         method = Config.FEATURE_CONFIG['target_transform_method']
         transformed_column = f'{target_column}_{method}'
         # 只保留必要的列，避免重复
-        msw_columns = ['Year', 'Country Name', 'MSW']
+        msw_columns = ['Year', 'Country Name', target_column , 'IW']
         if transformed_column in msw_df.columns:
             msw_columns.append(transformed_column)
             
@@ -88,7 +88,7 @@ class DataPreprocessor:
         )
         
         # 分割有/无MSW的数据
-        train_df = merged_df[merged_df['MSW'].notnull()]
-        predict_df = merged_df[merged_df['MSW'].isnull()]
+        train_df = merged_df[merged_df[target_column].notnull()]
+        predict_df = merged_df[merged_df[target_column].isnull()]
         
         return train_df, predict_df

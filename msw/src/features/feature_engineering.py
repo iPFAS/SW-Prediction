@@ -8,7 +8,7 @@ class FeatureEngineering:
     def __init__(self):
         """初始化特征工程类"""
         self.required_columns = Config.FEATURE_CONFIG['usecols']
-        self.base_year = Config.FEATURE_CONFIG.get('base_year', 2015)  # 添加缺失的base_year
+        self.base_year = Config.FEATURE_CONFIG['base_year']
         self.high_error_regions = ['South Asia', 'Sub-Saharan Africa', 'Middle East & North Africa']
         self.region_stats = {}  # 存储区域统计指标
         

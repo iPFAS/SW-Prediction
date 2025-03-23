@@ -15,7 +15,7 @@ class Config:
         'common_columns': ['Region', 'Income Group'],
         'country_train_size': 0.8,
         'country_val_size': 0.1,
-        'time_test_size': 0.15,
+        'time_test_size': 0.2,
         'random_state': 888
     }
 
