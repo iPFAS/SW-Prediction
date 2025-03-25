@@ -63,7 +63,8 @@ class Config:
         'data_dir': str(PROJECT_ROOT / 'data/datafile'),
         'features_dir': str(PROJECT_ROOT / 'features/featurefile'),
         'log_dir': str(PROJECT_ROOT / 'logs'),
-        'visualization_dir': str(PROJECT_ROOT / 'results' / 'visualization')
+        'visualization_dir': str(PROJECT_ROOT / 'results' / 'visualization'),
+        'prediction_dir': str(PROJECT_ROOT /'results' / 'prediction')
     }
 
     # 日志配置

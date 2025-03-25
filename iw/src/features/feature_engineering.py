@@ -100,34 +100,40 @@ class FeatureEngineering:
             
             # 趋势偏离度
             df[f'{metric_name}_trend_deviation'] = (df[metric] - df[f'{metric_name}_trend']) / df[f'{metric_name}_trend']
+
+        # 2. 人口与经济的交互特征
+        df['gdp_population_interaction'] = df['gdp_ppp_per_capita_2017_log'] * df['population_log']
         
-        # 2. 收入组特征
-        df['income_group_ordinal'] = df['Income Group'].map({
-            'Low income': 1, 
-            'Lower middle income': 2, 
-            'Upper middle income': 3, 
-            'High income': 4
-        })
+        # 经济增长与人口增长的协同性
+        df['growth_synergy'] = df['gdp_ppp_2017_growth'] * df['population_growth']
         
-        # 3. 简化的工业发展特征
-        # 工业增加值基础特征
-        df['industry_value_added_pct_log'] = np.log1p(df['Industry Value Added %'])
-        df['industry_value_added_pct_ma7'] = df.groupby('Country Name')['Industry Value Added %'].transform(
-            lambda x: x.rolling(7, min_periods=1).mean()
+        # 经济规模与人口密度
+        df['economic_density'] = df['gdp_ppp_2017_log'] / df.groupby('Country Name')['population_log'].transform('mean')
+        
+        # 经济发展阶段（基于人均GDP）与人口结构
+        df['development_population_impact'] = (
+            df['gdp_ppp_per_capita_2017_log'] * 
+            df.groupby('Country Name')['population_growth'].transform(
+                lambda x: x.rolling(5, min_periods=1).mean()
+            )
         ).fillna(0)
+
+        # # 3. 简化的工业发展特征
+        # # 工业增加值基础特征
+        # df['industry_value_added_pct_log'] = np.log1p(df['Industry Value Added %'])
+        # df['industry_value_added_pct_ma7'] = df.groupby('Country Name')['Industry Value Added %'].transform(
+        #     lambda x: x.rolling(7, min_periods=1).mean()
+        # ).fillna(0)
         
         # 工业增加值与GDP和人口的关键交互
         df['industry_gdp_interaction'] = df['Industry Value Added %'] * df['gdp_ppp_2017_log']
         df['industry_population_interaction'] = df['Industry Value Added %'] * df['population_log']
         
-        # 工业增加值的区域相对水平
-        df['industry_region_relative'] = df['Industry Value Added %'] - df.groupby('Region')['Industry Value Added %'].transform('mean')
-        
-        # 工业增加值趋势特征
-        df['industry_growth'] = df.groupby('Country Name')['Industry Value Added %'].pct_change().fillna(0)
-        df['industry_trend'] = df.groupby('Country Name')['Industry Value Added %'].transform(
-            lambda x: x.rolling(7, min_periods=1).mean()
-        ).fillna(0)
+        # # 工业增加值趋势特征
+        # df['industry_growth'] = df.groupby('Country Name')['Industry Value Added %'].pct_change().fillna(0)
+        # df['industry_trend'] = df.groupby('Country Name')['Industry Value Added %'].transform(
+        #     lambda x: x.rolling(7, min_periods=1).mean()
+        # ).fillna(0)
         
         # 处理异常值和缺失值
         numeric_cols = df.select_dtypes(include=[np.number]).columns

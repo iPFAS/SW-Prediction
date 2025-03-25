@@ -101,6 +101,27 @@ class FeatureEngineering:
             # 趋势偏离度
             df[f'{metric_name}_trend_deviation'] = (df[metric] - df[f'{metric_name}_trend']) / df[f'{metric_name}_trend']
 
+
+        # 2. 人口与经济的交互特征
+        df['gdp_population_interaction'] = df['gdp_ppp_per_capita_2017_log'] * df['population_log']
+        
+        # 经济增长与人口增长的协同性
+        df['growth_synergy'] = df['gdp_ppp_2017_growth'] * df['population_growth']
+        
+        # 经济规模与人口密度
+        df['economic_density'] = df['gdp_ppp_2017_log'] / df.groupby('Country Name')['population_log'].transform('mean')
+        
+        # 经济发展阶段（基于人均GDP）与人口结构
+        df['development_population_impact'] = (
+            df['gdp_ppp_per_capita_2017_log'] * 
+            df.groupby('Country Name')['population_growth'].transform(
+                lambda x: x.rolling(5, min_periods=1).mean()
+            )
+        ).fillna(0)
+
+        # 工业增加值与GDP和人口的关键交互
+        df['industry_gdp_interaction'] = df['Industry Value Added %'] * df['gdp_ppp_2017_log']
+        df['industry_population_interaction'] = df['Industry Value Added %'] * df['population_log']
         
         # 处理异常值和缺失值
         numeric_cols = df.select_dtypes(include=[np.number]).columns

@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/4c2a23a263ce4ec7aec23f6fed461784/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 4c2a23a263ce4ec7aec23f6fed461784
+run_name: Random Forest Regressor
+run_uuid: 4c2a23a263ce4ec7aec23f6fed461784
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742921408645
+status: 1
+tags: []
+user_id: Administrator

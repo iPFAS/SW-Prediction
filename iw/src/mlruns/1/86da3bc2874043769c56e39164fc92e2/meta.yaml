@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/86da3bc2874043769c56e39164fc92e2/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 86da3bc2874043769c56e39164fc92e2
+run_name: Elastic Net
+run_uuid: 86da3bc2874043769c56e39164fc92e2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742921410984
+status: 1
+tags: []
+user_id: Administrator

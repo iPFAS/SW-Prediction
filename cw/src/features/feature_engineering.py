@@ -66,7 +66,7 @@ class FeatureEngineering:
         df = df.copy()
         
         # 1. 基础指标的非线性特征和时间序列特征
-        for metric in ['Population', 'GDP PPP/capita 2017', 'Urban population %']:
+        for metric in ['Population', 'GDP PPP 2017','GDP PPP/capita 2017', 'Urban population %']:
             metric_name = metric.lower().replace(' ', '_').replace('/', '_per_').replace('%', 'pct')
             
             # 对数变换
@@ -95,6 +95,23 @@ class FeatureEngineering:
                 # 趋势强度
                 df[f'{metric_name}_trend_strength_{w}'] = df[f'{metric_name}_ma_{w}'].pct_change().fillna(0)
         
+        # 2. 人口与经济的交互特征
+        df['gdp_population_interaction'] = df['gdp_ppp_per_capita_2017_log'] * df['population_log']
+        
+        # 经济增长与人口增长的协同性
+        df['growth_synergy'] = df['gdp_ppp_2017_growth'] * df['population_growth']
+        
+        # 经济规模与人口密度
+        df['economic_density'] = df['gdp_ppp_2017_log'] / df.groupby('Country Name')['population_log'].transform('mean')
+        
+        # 经济发展阶段（基于人均GDP）与人口结构
+        df['development_population_impact'] = (
+            df['gdp_ppp_per_capita_2017_log'] * 
+            df.groupby('Country Name')['population_growth'].transform(
+                lambda x: x.rolling(5, min_periods=1).mean()
+            )
+        ).fillna(0)
+
         # 处理异常值和缺失值
         numeric_cols = df.select_dtypes(include=[np.number]).columns
         
