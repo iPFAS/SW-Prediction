@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/src/mlruns/1/b1aaa8c9375f4cb2a3d5a6f4ad8da044/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: b1aaa8c9375f4cb2a3d5a6f4ad8da044
+run_name: Gradient Boosting Regressor
+run_uuid: b1aaa8c9375f4cb2a3d5a6f4ad8da044
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744305270979
+status: 1
+tags: []
+user_id: Administrator

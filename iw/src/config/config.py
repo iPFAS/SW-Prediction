@@ -12,11 +12,11 @@ class Config:
     DATA_CONFIG = {
         'data_path': r"E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\1-MSW_CW_IW_HIW_training_data.xlsx", 
         'target_column': 'IW',
-        'common_columns': ['Region', 'Income Group','Industry Value Added %'],
+        'common_columns': ['Region', 'Income Group'],
         'country_train_size': 0.8,
         'country_val_size': 0.1,
         'time_test_size': 0.20,
-        'random_state': 888
+        'random_state': 123
     }
 
     # 特征工程配置
@@ -31,7 +31,7 @@ class Config:
         'future_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\0-indicator_list-v2.xlsx',
         'future_sheet': 'IW全部指标',
         'usecols': ['Year', 'Country Name', 'Population', 
-                    'GDP PPP 2017', 'GDP PPP/capita 2017','Income Group', 'Region','Industry Value Added %']
+                    'GDP PPP 2017', 'GDP PPP/capita 2017','Income Group', 'Region','Urban population %']
     }
 
     # 模型训练配置
@@ -45,16 +45,17 @@ class Config:
         'normalize': True,
         'data_split_shuffle': False,
         'verbose' : True,
-        'session_id': 888,
+        'session_id': 456,
     }
 
     # 模型调优配置
     TUNING_CONFIG = {
-        'n_iter': 50,
+        'n_iter': 150,
         'optimize': 'RMSE',
-        'search_library': 'optuna',
-        'early_stopping': 10,
-        'return_train_score': False
+        'search_library': 'Optuna',
+        'early_stopping': 30,
+        'return_train_score': False,
+        'choose_better': True,    
     }
 
     # 文件路径配置

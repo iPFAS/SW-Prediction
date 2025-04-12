@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/699cf039b9f74390b47a528990f51912/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 699cf039b9f74390b47a528990f51912
+run_name: AdaBoost Regressor
+run_uuid: 699cf039b9f74390b47a528990f51912
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744318842694
+status: 1
+tags: []
+user_id: Administrator

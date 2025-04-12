@@ -69,7 +69,8 @@ class DataPreprocessor:
         # 加载全局特征
         features_path = Path(Config.PATH_CONFIG['features_dir']) / 'global_features.csv'
         feature_df = pd.read_csv(features_path)
-        
+        print(len(feature_df))
+
         target_column = Config.DATA_CONFIG['target_column']
         method = Config.FEATURE_CONFIG['target_transform_method']
         transformed_column = f'{target_column}_{method}'
@@ -79,7 +80,7 @@ class DataPreprocessor:
             msw_columns.append(transformed_column)
             
         msw_df = msw_df[msw_columns]
-    
+
         # 合并特征，以feature_df为主表
         merged_df = feature_df.merge(
             msw_df,

@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/src/mlruns/1/899d4fd3a0604a5ba802765ac1df7cab/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 899d4fd3a0604a5ba802765ac1df7cab
+run_name: Dummy Regressor
+run_uuid: 899d4fd3a0604a5ba802765ac1df7cab
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744305901229
+status: 1
+tags: []
+user_id: Administrator

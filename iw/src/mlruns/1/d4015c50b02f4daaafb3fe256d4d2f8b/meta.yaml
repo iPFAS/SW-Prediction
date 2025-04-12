@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/d4015c50b02f4daaafb3fe256d4d2f8b/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: d4015c50b02f4daaafb3fe256d4d2f8b
+run_name: Ridge Regression
+run_uuid: d4015c50b02f4daaafb3fe256d4d2f8b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744397390014
+status: 1
+tags: []
+user_id: Administrator

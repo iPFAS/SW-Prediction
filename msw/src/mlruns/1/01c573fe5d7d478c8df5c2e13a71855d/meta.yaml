@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/src/mlruns/1/01c573fe5d7d478c8df5c2e13a71855d/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 01c573fe5d7d478c8df5c2e13a71855d
+run_name: Lasso Least Angle Regression
+run_uuid: 01c573fe5d7d478c8df5c2e13a71855d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744289074776
+status: 1
+tags: []
+user_id: Administrator

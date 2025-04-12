@@ -16,7 +16,7 @@ class Config:
         'country_train_size': 0.8,
         'country_val_size': 0.1,
         'time_test_size': 0.2,
-        'random_state': 888
+        'random_state': 123
     }
 
     # 特征工程配置
@@ -45,15 +45,15 @@ class Config:
         'normalize': True,
         'data_split_shuffle': False,
         'verbose' : True,
-        'session_id': 888,
+        'session_id': 456,
     }
 
     # 模型调优配置
     TUNING_CONFIG = {
-        'n_iter': 50,
+        'n_iter': 100,
         'optimize': 'RMSE',
         'search_library': 'optuna',
-        'early_stopping': 10,
+        'early_stopping': 20,
         'return_train_score': False
     }
 

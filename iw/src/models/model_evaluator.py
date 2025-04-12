@@ -34,7 +34,7 @@ class ModelEvaluator:
         """
         # 设置pycaret实验
         self.exp = setup(
-            session_id = Config.DATA_CONFIG['random_state'],
+            session_id = Config.MODEL_CONFIG['session_id'],
             train_size = train_size,
             data= train_data,
             test_data = val_data,

@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/cw/src/mlruns/1/d48fc9ee266d4c5ba0de4c5481b7e9de/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: d48fc9ee266d4c5ba0de4c5481b7e9de
+run_name: Decision Tree Regressor
+run_uuid: d48fc9ee266d4c5ba0de4c5481b7e9de
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744397420879
+status: 1
+tags: []
+user_id: Administrator

@@ -1,0 +1,15 @@
+artifact_uri: file:///E:/code/jupyter/%E5%9B%BA%E5%BA%9F%E4%BA%A7%E7%94%9F/SW-Prediction/iw/src/mlruns/1/8aea3b292b79425aa981f171f85d3d51/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+run_id: 8aea3b292b79425aa981f171f85d3d51
+run_name: Extreme Gradient Boosting
+run_uuid: 8aea3b292b79425aa981f171f85d3d51
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744318656422
+status: 1
+tags: []
+user_id: Administrator
