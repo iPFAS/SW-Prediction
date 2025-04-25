@@ -21,7 +21,10 @@ The project follows a standard machine learning pipeline:
 7.  **Model Saving**: Save the trained PyCaret pipeline (including preprocessing and the final model) and feature engineering parameters.
 8.  **Prediction & Evaluation**: Load the saved model and parameters, apply feature engineering to test data, generate predictions, inverse-transform predictions if necessary, and evaluate performance using metrics like R², MAE, RMSE, and MAPE on the test sets.
 9.  **Visualization**: Generate plots comparing actual vs. predicted values, time-series trends, and performance across different countries.
-
+10.  **Feature Selection, Comparison & Voting**: Multiple feature selection methods (e.g., model-based importance, recursive feature elimination, Lasso, mutual information) are used. The results are compared and a voting mechanism is applied to determine the final feature set for model training, improving robustness and reducing overfitting.
+11.  **Outlier Detection & Filtering (Optional)**: Outlier detection is performed on the target variable and/or key features using statistical methods (such as z-score, IQR, or time-series ratio checks). Detected outliers can be optionally removed or flagged for further inspection, improving data quality and model reliability.
+12.  **Model Interpretation**: Model interpretation is conducted using tools such as SHAP or feature importance plots. This allows users to understand the contribution of each feature to the model’s predictions, providing transparency and supporting decision-making.
+13.  **External Prediction Module**: The framework supports external scenario-based prediction. After training, the model can be applied to future scenario datasets (e.g., 2022-2050) that may include different socioeconomic assumptions. The pipeline ensures that only non-overlapping years are used and that all feature engineering steps are consistently applied.
 ## Directory Structure
 
 ```plaintext
@@ -86,3 +89,36 @@ class Config:
         'n_select': 3, # Number of top models to use for ensembling
         # ... other PyCaret setup or modeling params
     }
+
+## Feature Engineering Considerations and Potential Data Leakage
+
+This project employs a comprehensive feature engineering strategy to capture complex relationships relevant to waste generation prediction. However, users should be aware of certain aspects related to how some features are calculated, particularly concerning potential data leakage in a traditional time-series evaluation context.
+
+**Features Calculated Dynamically in `transform`:**
+
+Several features are calculated dynamically within the `transform` step of the feature engineering pipeline. These include:
+
+1.  **Ranking Features:** Features like `income_group_population_rank`, `region_gdp_rank`, `region_income_gdp_pc_rank`, etc., are calculated using `pandas.groupby().rank()`. When applied to a dataset spanning multiple time steps (e.g., a validation set), the rank for a given time step `t` is influenced by data from subsequent time steps (`t+1`, `t+2`, ...) within that dataset.
+2.  **Normalization/Scaling Features (Potentially, if not using `fit` parameters):** Features like `economic_development_level` or `year_since_min` *could* potentially be calculated using `min`/`max` values derived from the entire input `DataFrame` during `transform`. (Note: The current implementation aims to mitigate this for normalization by calculating parameters in `fit` and reusing them in `transform`, which is the standard best practice).
+3.  **Growth Rate Features:** Features like `consumption_growth` calculated using `pct_change()` inherently use information from the previous time step.
+
+**Traditional Data Leakage Perspective:**
+
+In standard machine learning practice, especially for time-series forecasting evaluation, using information from future time steps (relative to the point being predicted) to generate features for the current time step is considered data leakage. This can lead to overly optimistic performance metrics during validation because the model effectively gets a "peek" at future information it wouldn't have in a real-world deployment scenario when predicting step-by-step.
+
+**Justification for this Project's Approach:**
+
+This project operates under a specific assumption relevant to long-term forecasting: **future values of *input features* (like GDP, population, etc.) are considered knowable**, typically obtained from forecasts provided by authoritative institutions (e.g., World Bank, IMF).
+
+Therefore, when the model is deployed to predict waste generation for a future year (e.g., 2030), it *will* have access to the predicted GDP and population figures for 2030 for all relevant countries. Calculating features like the global or regional rank for a country in 2030 based on these *predicted* 2030 inputs is a necessary and valid part of the prediction process in this specific context.
+
+**Impact on Validation Metrics:**
+
+While this approach aligns with the intended application scenario, it's important to acknowledge its impact during the **evaluation phase** using historical data:
+
+*   When the `transform` method (calculating ranks dynamically) is applied to a historical validation set spanning multiple years (e.g., 2018-2020), the calculation *does* introduce information from later years into earlier year feature calculations.
+*   Consequently, the validation metrics (e.g., R², MAE) reported might be **optimistically biased** compared to a strict evaluation protocol where features for year `t` are calculated *only* using information available up to year `t`.
+
+**Conclusion:**
+
+The dynamic calculation of certain features (especially rankings) within the `transform` step reflects the operational reality of using predicted future inputs for future predictions. While this introduces a form of data leakage during historical validation, potentially inflating performance metrics, this trade-off is considered acceptable given the specific nature and requirements of this forecasting task. Users interpreting the validation results should be mindful of this potential bias. The most critical leakage (using future data for normalization parameters like min/max) is addressed by calculating these parameters during the `fit` phase on the training data.
