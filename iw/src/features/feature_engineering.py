@@ -215,48 +215,19 @@ class FeatureEngineering:
                 print(f"...已生成: {interaction_col}")
         else:
             print(f"...警告: 时间特征 '{year_rel_col}' 未找到，无法创建时间相关的交互特征。")
-        # -------------------------------
-        # 8. 清理 & 后处理 (缺失值填充和极端值处理)
-        print("处理缺失值和无穷值...")
-        # 选择所有数值类型的列进行处理
-        numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
-        # 排除不应填充的标识符列（如果它们是数值类型）
-        cols_to_exclude_from_fill = ['Year'] # 可能还有其他ID列
-        numeric_cols_to_fill = [col for col in numeric_cols if col not in cols_to_exclude_from_fill]
-
-        # 强制转为数值，并将无法转换的值变为NaN
-        for col in numeric_cols_to_fill:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-
-        # 将 Inf 和 -Inf 替换为 NaN，以便统一处理
-        df[numeric_cols_to_fill] = df[numeric_cols_to_fill].replace([np.inf, -np.inf], np.nan)
-
-        # 使用中位数填充 NaN 值
-        na_counts_before = df[numeric_cols_to_fill].isnull().sum()
-        print("...正在使用中位数填充NaN值...")
-        for col in numeric_cols_to_fill:
-            if df[col].isnull().any():
-                median_val = df[col].median()
-                # 如果整列都是 NaN，中位数也是 NaN，此时用 0 填充
-                if pd.isna(median_val):
-                     median_val = 0
-                     print(f"警告: 列 '{col}' 中位数无法计算 (可能全为NaN)，将使用 0 填充。")
-                df[col] = df[col].fillna(median_val)
-        na_counts_after = df[numeric_cols_to_fill].isnull().sum()
-        na_filled_count = (na_counts_before - na_counts_after).sum()
-        print(f"...填充完成，共处理了 {na_filled_count} 个 NaN 值。")
-
-        # (可选) 裁剪极端值，防止数值溢出或模型对极端值过于敏感
-        print("裁剪极端数值...")
-        finfo = np.finfo(np.float64)
-        for col in numeric_cols_to_fill:
-             df[col] = np.clip(df[col], finfo.min, finfo.max)
-
-        # # 删除原始的、未处理的列（如果需要）
-        # if urban_col in df.columns and urban_perc_col in df.columns:
-        #      df = df.drop(columns=[urban_col])
-        #      print(f"...已删除原始列: {urban_col}")
-        # # 可以考虑删除其他原始数值列，如果它们已被 log 转换等完全替代
-
-        print("Transform 过程完成。")
+        # 处理异常值和缺失值
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        
+        # 先将所有数值列转换为float64类型
+        for col in numeric_cols:
+            df[col] = df[col].astype(np.float64)
+        
+        # 直接使用fillna处理无穷值和NaN值
+        df[numeric_cols] = df[numeric_cols].replace([np.inf, -np.inf], np.nan)
+        df[numeric_cols] = df[numeric_cols].fillna(0)
+        
+        # 对数值进行裁剪，确保在浮点数的有效范围内
+        df[numeric_cols] = df[numeric_cols].apply(
+            lambda x: np.clip(x, np.finfo(np.float64).min, np.finfo(np.float64).max)
+        )
         return df

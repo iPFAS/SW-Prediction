@@ -28,8 +28,8 @@ class Config:
         'historical_sheet': 'MSW全部指标',
         'historical_msw_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\1-MSW_CW_IW_HIW_training_data.xlsx',
         'historical_msw_sheet': 'msw_result',
-        'future_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\0-indicator_list-v2.xlsx',
-        'future_sheet': 'MSW全部指标',
+        'future_data_path': r'E:\博士\1-课题\0-固废产生的研究\2-数据整理结果\0-indicator_list-v2-2022-2100.xlsx',
+        'future_sheet': '未来数据-插值',
         'usecols': ['Year', 'Country Name', 'Population', 
                     'GDP PPP 2017', 'GDP PPP/capita 2017','Income Group', 'Region']
     }

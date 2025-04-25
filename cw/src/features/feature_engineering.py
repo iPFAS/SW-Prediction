@@ -63,6 +63,8 @@ class FeatureEngineering:
             if col not in df.columns:
                 print(f"警告: 列 '{col}' 不存在，部分特征将无法生成")
         
+
+        
         # 1. 计算全球基本统计量
         global_stats = {
             'gdp_pc_mean': df['GDP PPP/capita 2017'].mean(),
@@ -191,7 +193,13 @@ class FeatureEngineering:
             'ekc_params': ekc_params,
             'population_thresholds': population_thresholds
         }
-            
+
+        quantiles = np.linspace(0, 1, 101)  # 生成0%~100%分位数
+        self.global_stats['global_stats']['gdp_pc_quantiles'] = {
+            'values': df['GDP PPP/capita 2017'].quantile(quantiles).values,
+            'quantiles': quantiles
+        }            
+
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """使用已拟合的参数转换数据，生成特征
         
@@ -289,7 +297,7 @@ class FeatureEngineering:
             df['region_income_population_rank'] = df.groupby(['Region', 'Income Group'])['Population'].rank(pct=True)
         
         # 5. 人口规模分组特征
-        population_thresholds = self.global_stats.get('population_thresholds', [df['Population'].quantile(0.33), df['Population'].quantile(0.67)])
+        population_thresholds = self.global_stats['population_thresholds']
         
         # 创建人口规模分类
         df['population_size_category'] = pd.cut(
@@ -303,8 +311,8 @@ class FeatureEngineering:
         for size in [0,1,2]:
             size_mean = population_size_stats.get(size, {}).get('mean', 1)
             mask = df['population_size_category'] == size
-            df.loc[mask, f'{size}_population_relative_gdp_pc'] = df.loc[mask, 'GDP PPP/capita 2017'] / size_mean
-        
+            df.loc[mask, f'{size}_population_relative_gdp_pc'] = df.loc[mask, 'GDP PPP/capita 2017'] / size_mean        
+
         # 6. 环境库兹涅茨曲线特征
         ekc_params = self.global_stats.get('ekc_params', {
             'peak_point': df['GDP PPP/capita 2017'].quantile(0.75),
@@ -333,10 +341,15 @@ class FeatureEngineering:
                                               df['GDP PPP/capita 2017'] - late_threshold, 0)
         
         # 7. 综合发展指标
-        # 经济发展水平 - 基于人均GDP的归一化值
+        # 经济发展水平 分位数回归映射
         gdp_pc = df['GDP PPP/capita 2017']
-        df['economic_development_level'] = (gdp_pc - gdp_pc.min()) / (gdp_pc.max() - gdp_pc.min()) if gdp_pc.max() > gdp_pc.min() else 0.5
-        
+        q_params = self.global_stats['global_stats']['gdp_pc_quantiles']
+        df['economic_development_level'] = np.interp(
+            gdp_pc,
+            q_params['values'],
+            q_params['quantiles']
+        )
+
         # 工业化水平指标 - 使用人均GDP相对于High income组的比例
         high_income_mean = self.global_stats.get('income_group_stats', {}).get('High income', {}).get('gdp_pc_mean', gdp_pc.max())
         df['industrialization_level'] = df['GDP PPP/capita 2017'] / high_income_mean
@@ -399,7 +412,7 @@ class FeatureEngineering:
         
         # 直接使用fillna处理无穷值和NaN值
         df[numeric_cols] = df[numeric_cols].replace([np.inf, -np.inf], np.nan)
-        df[numeric_cols] = df[numeric_cols].fillna(method='ffill').fillna(method='bfill').fillna(0)
+        df[numeric_cols] = df[numeric_cols].fillna(0)
         
         # 对数值进行裁剪，确保在浮点数的有效范围内
         df[numeric_cols] = df[numeric_cols].apply(
