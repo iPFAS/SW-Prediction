@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project aims to predict the generation of different types of solid waste (Municipal Solid Waste - MSW, Construction Waste - CW, Industrial Waste - IW) for various countries based on historical data and socioeconomic indicators. It utilizes a machine learning approach, primarily leveraging ensemble models trained using the PyCaret library, to capture complex relationships between waste generation and factors like GDP, population, urbanization, region, and income group.
+This project aims to predict the generation of different types of solid waste (Municipal Solid Waste - MSW, Construction and Demolition Waste - CW, Industrial Waste - IW) for various countries based on historical data and socioeconomic indicators. It utilizes a machine learning approach, primarily leveraging ensemble models trained using the PyCaret library, to capture complex relationships between waste generation and factors like GDP, population, urbanization, region, and income group.
 
 The framework is designed to be adaptable for different waste streams, potentially with variations in feature engineering and data splitting strategies depending on data availability and characteristics.
 
