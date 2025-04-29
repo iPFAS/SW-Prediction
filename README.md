@@ -89,7 +89,7 @@ class Config:
         'n_select': 3, # Number of top models to use for ensembling
         # ... other PyCaret setup or modeling params
     }
-
+```
 ## Feature Engineering Considerations and Potential Data Leakage
 
 This project employs a comprehensive feature engineering strategy to capture complex relationships relevant to waste generation prediction. However, users should be aware of certain aspects related to how some features are calculated, particularly concerning potential data leakage in a traditional time-series evaluation context.
